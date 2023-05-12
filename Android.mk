@@ -17,7 +17,7 @@
 
 LOCAL_PATH := $(call my-dir)
 
-ifneq ($(filter g5 h830 h850 rs988 v20 h910 h915 h918 h990 vs995 us996 ls997 g6 h870 h872 us997,$(TARGET_DEVICE)),)
+ifneq ($(filter g5 h830 h850 rs988 v20 h910 h915 h918 h990 vs995 us996 us996d ls997 g6 h870 h872 us997,$(TARGET_DEVICE)),)
 
 include $(call all-makefiles-under,$(LOCAL_PATH))
 
@@ -97,16 +97,6 @@ $(WIDEVINE_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
 
 ALL_DEFAULT_INSTALLED_MODULES += $(WIDEVINE_SYMLINKS)
 # END WIDEVINE Images
-
-IMS_LIBS := libimscamera_jni.so libimsmedia_jni.so
-IMS_SYMLINKS := $(addprefix $(TARGET_OUT_VENDOR_APPS)/ims/lib/arm64/,$(notdir $(IMS_LIBS)))
-$(IMS_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
-	@echo "IMS lib link: $@"
-	@mkdir -p $(dir $@)
-	@rm -rf $@
-	$(hide) ln -sf /system/vendor/lib64/$(notdir $@) $@
-
-ALL_DEFAULT_INSTALLED_MODULES += $(IMS_SYMLINKS)
 
 RFS_MSM_ADSP_SYMLINKS := $(TARGET_OUT)/rfs/msm/adsp/
 $(RFS_MSM_ADSP_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
