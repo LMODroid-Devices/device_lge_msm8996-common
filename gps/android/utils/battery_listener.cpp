@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2019, The Linux Foundation. All rights reserved.
+* Copyright (c) 2019-2020, The Linux Foundation. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are
@@ -177,16 +177,19 @@ BatteryListenerImpl::~BatteryListenerImpl()
 {
     {
         std::lock_guard<std::mutex> _l(mLock);
-        if (mHealth != NULL)
-            mHealth->unlinkToDeath(this);
+        if (mHealth != NULL) {
+            mHealth->unregisterCallback(this);
             auto r = mHealth->unlinkToDeath(this);
             if (!r.isOk() || r == false) {
                 ALOGE("Transaction error in unregister to HealthHAL death: %s",
                         r.description().c_str());
             }
+        }
     }
     mDone = true;
-    mThread->join();
+    if (NULL !=  mThread) {
+        mThread->join();
+    }
 }
 
 void BatteryListenerImpl::serviceDied(uint64_t cookie __unused,
@@ -201,7 +204,11 @@ void BatteryListenerImpl::serviceDied(uint64_t cookie __unused,
         ALOGI("health service died, reinit");
         mDone = true;
     }
-    mThread->join();
+    mHealth = NULL;
+    mCond.notify_one();
+    if (NULL !=  mThread) {
+        mThread->join();
+    }
     std::lock_guard<std::mutex> _l(mLock);
     init();
 }
